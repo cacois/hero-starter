@@ -1,4 +1,4 @@
-/* 
+/*
 
   The only function that is required in this file is the "move" function
 
@@ -9,8 +9,8 @@
 
   The "move" function must return "North", "South", "East", "West", or "Stay"
   (Anything else will be interpreted by the game as "Stay")
-  
-  The "move" function should accept two arguments that the website will be passing in: 
+
+  The "move" function should accept two arguments that the website will be passing in:
     - a "gameData" object which holds all information about the current state
       of the battle
 
@@ -79,6 +79,7 @@
 //   }
 // };
 
+/*
 // // The "Safe Diamond Miner"
 var move = function(gameData, helpers) {
   var myHero = gameData.activeHero;
@@ -91,7 +92,7 @@ var move = function(gameData, helpers) {
   });
   var distanceToHealthWell = healthWellStats.distance;
   var directionToHealthWell = healthWellStats.direction;
-  
+
 
   if (myHero.health < 40) {
     //Heal no matter what if low health
@@ -103,7 +104,7 @@ var move = function(gameData, helpers) {
     //If healthy, go capture a diamond mine!
     return helpers.findNearestNonTeamDiamondMine(gameData);
   }
-};
+};*/
 
 // // The "Selfish Diamond Miner"
 // // This hero will attempt to capture diamond mines (even those owned by teammates).
@@ -137,6 +138,51 @@ var move = function(gameData, helpers) {
 // var move = function(gameData, helpers) {
 //   return helpers.findNearestHealthWell(gameData);
 // }
+
+
+//=================//
+//     My Move     //
+//=================//
+
+var move = function(gameData, helpers) {
+  var myHero = gameData.activeHero;
+
+  // Find nearest health well
+  var healthWellStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(boardTile) {
+    if (boardTile.type === 'HealthWell') {
+      return true;
+    }
+  });
+  var distanceToHealthWell = healthWellStats.distance;
+  var directionToHealthWell = healthWellStats.direction;
+
+  // Gather stats on nearby weaker enemy
+  var weakerEnemyStats = helpers.findNearestWeakerEnemy(gameData, false);
+  var distanceToWeakerEnemy = weakerEnemyStats.distance;
+  var directionToWeakerEnemy = weakerEnemyStats.direction;
+
+  // Get stats on Nearest Unowned Diamond Mine
+  var diamondMineStats = helpers.findNearestUnownedDiamondMine(gameData, false);
+  var distanceToDiamondMine = diamondMineStats.distance;
+  var directionToDiamondMine = diamondMineStats.direction;
+
+  // If low health, run away and heal
+  if (myHero.health < 40) {
+    return directionToHealthWell;
+  }
+  // Heal if you aren't high health and are close to a health well already
+  else if (myHero.health < 80 && distanceToHealthWell === 1) {
+    return directionToHealthWell;
+  }
+  // If health is fine, and enemy is within three tiles, attack
+  else if (myHero.health >= 80 && distanceToWeakerEnemy <= 3) {
+    return directionToWeakerEnemy;
+  }
+  // If healthy, go capture a diamond mine!
+  else {
+    return directionToDiamondMine;
+  }
+};
 
 
 // Export the move function here
