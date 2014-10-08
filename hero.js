@@ -178,10 +178,17 @@ var move = function(gameData, helpers) {
   else if (myHero.health >= 80 && distanceToWeakerEnemy <= 3) {
     return directionToWeakerEnemy;
   }
-  // If healthy, go capture a diamond mine!
-  else {
+  // If healthy and there exists a diamond mine, go capture a diamond mine!
+  else if (typeof directionToDiamondMine !== 'undefined') {
     return directionToDiamondMine;
   }
+  // else, seek a weaker enemy
+  else if (typeof distanceToWeakerEnemy !== 'undefined') {
+    return directionToWeakerEnemy;
+  }
+  // if all else fails, go heal
+  else return directionToHealthWell;
+
 };
 
 
